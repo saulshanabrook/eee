@@ -1,12 +1,6 @@
 {
-  "name": "Colgate Schedule",
-  "description": "Import your Colgate courses schedule to `.ics`",
-  "keywords": [
-    "colgate",
-    "calendar",
-    "ics"
-  ],
-  "website": "https://colgate-schedule.herokuapp.com/",
-  "repository": "https://github.com/saulshanabrook/colgate-schedule",
-  "success_url": "/"
+  "name": "eee-api",
+  "description": "cause edx's api sucks",
+  "website": "https://eee.herokuapp.com/",
+  "repository": "https://github.com/saulshanabrook/eee",
 }

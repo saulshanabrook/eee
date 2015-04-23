@@ -1,1 +1,1 @@
-web: gunicorn colgate_schedule.server:app --log-file -
+web: gunicorn --timeout 360 --log-file - eee.server:app
