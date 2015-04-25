@@ -1,12 +1,15 @@
 
 import flask
 import flask_sslify
+from flask.ext.cors import CORS
+
 from . import edx_edge
 
 
 app = flask.Flask(__name__)
-app.debug = True
+app.debug = False
 
+cors = CORS(app)
 flask_sslify.SSLify(app, permanent=True)
 
 
