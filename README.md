@@ -13,7 +13,7 @@ that allows a user to get a  page showcasing their contributions.
 
 ## Example
 ```
-$ http --timeout 360 --form POST https://eee-api.herokuapp.com/ \
+$ http --timeout 360 POST https://eee-api.herokuapp.com/ \
   email=sshanabrook@colgate.edu \
   password=<your password> \
   id_number=50081 \
