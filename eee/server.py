@@ -1,4 +1,3 @@
-
 import flask
 import flask_sslify
 from flask.ext.cors import CORS
@@ -16,4 +15,4 @@ flask_sslify.SSLify(app, permanent=True)
 @app.route("/", methods=["POST"])
 def data():
     kwargs = flask.request.get_json()
-    return ', '.join(edx_edge.get_all_posts(**kwargs))
+    return flask.jsonify(*edx_edge.get_all_posts(**kwargs))

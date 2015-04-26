@@ -26,10 +26,11 @@ def login(email, password):
 
 def has_next_page(soup, page_number):
     total_pages = soup.find('section', class_='discussion-user-threads')['data-num-pages']
-    return int(total_pages) == page_number
+    return int(total_pages) != page_number
 
 
 def user_links(session, id_number, institution, course_num, section, page_number=1):
+    print('looking for links for {} on page {}'.format(id_number, page_number))
     r = session.get(
         '{}courses/{}/{}/{}/discussion/forum/users/{}?page={}'.format(
             BASE_URL,
@@ -56,6 +57,7 @@ def extract_comment_links(soup):
             '{0}courses/{1[course_id]}/discussion/forum/'
             '{1[commentable_id]}/threads/{1[id]}'
         ).format(BASE_URL, dictionary)
+        print('found {}'.format(link))
         yield link
 
 
@@ -63,9 +65,10 @@ def extract_comment_links(soup):
 def link_to_post(session, link):
     r = session.get(link)
     soup = bs4.BeautifulSoup(r.text)
-    posts = soup.find('section', id='discussion-container')['data-threads']
-
-    return posts
+    posts = json.loads(soup.find('section', id='discussion-container')['data-threads'])
+    for random_post in posts:
+        if 'resp_skip' in random_post:
+            return random_post
 
 
 def get_all_posts(email, password, id_number, institution, course_num, section):
@@ -74,3 +77,6 @@ def get_all_posts(email, password, id_number, institution, course_num, section):
     links = user_links(session, id_number, institution, course_num, section)
     for link in links:
         yield link_to_post(session, link)
+
+
+
