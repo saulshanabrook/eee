@@ -1,12 +1,9 @@
 import os
+import logging
 
 from livereload import Server
-import werkzeug.debug
 
-from . import server
+from .server import app
 
-app = werkzeug.debug.DebuggedApplication(server.app, evalex=True)
-
-server = Server(app)
-server.watch('eee/*.py')
-server.serve(port=os.environ['PORT'])
+app.debug = True
+logging.basicConfig(level=logging.DEBUG)

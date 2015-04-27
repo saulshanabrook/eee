@@ -1,17 +1,23 @@
 import datetime
-import bs4
-import requests
 import itertools
 import json
-from retrying import retry
+import functools
+
+import bs4
+from requests_futures.sessions import FuturesSession
+import requests
 from urllib.parse import urljoin
 
 BASE_URL = 'https://edge.edx.org/'
 
 
 def login(email, password):
-    session = requests.Session()
-    session.get('https://edge.edx.org/login')
+    session = FuturesSession(max_workers=20)
+
+    adapter = requests.adapters.HTTPAdapter(pool_connections=200, pool_maxsize=200, max_retries=20)
+    session.mount('https://', adapter)
+
+    session.get('https://edge.edx.org/login').result()
     session.headers.update({
         'referer': 'https://edge.edx.org/login',
         'X-CSRFToken': session.cookies['csrftoken']
@@ -20,7 +26,7 @@ def login(email, password):
     session.post(
         urljoin(BASE_URL, 'login_ajax'),
         data={'email': email, 'password': password},
-    )
+    ).result()
     return session
 
 
@@ -40,7 +46,7 @@ def user_links(session, id_number, institution, course_num, section, page_number
             id_number,
             page_number
         )
-    )
+    ).result()
     soup = bs4.BeautifulSoup(r.text)
     yield from extract_comment_links(soup)
     if has_next_page(soup, page_number):
@@ -60,23 +66,30 @@ def extract_comment_links(soup):
         print('found {}'.format(link))
         yield link
 
-
-@retry(stop_max_attempt_number=2)
-def link_to_post(session, link):
-    r = session.get(link)
+def process_post_response(session, r):
+    print("Processing {}".format(r.url))
     soup = bs4.BeautifulSoup(r.text)
     posts = json.loads(soup.find('section', id='discussion-container')['data-threads'])
     for random_post in posts:
         if 'resp_skip' in random_post:
-            return random_post
+            r.post = random_post
+            return
 
 
 def get_all_posts(email, password, id_number, institution, course_num, section):
+    print("Logging in")
     session = login(email, password)
-
+    print("getting links")
     links = user_links(session, id_number, institution, course_num, section)
-    for link in links:
-        yield link_to_post(session, link)
+    post_future = functools.partial(
+        session.get,
+        background_callback=process_post_response)
+
+    print("now creating futures")
+    r_futures = [post_future(link) for link in links]
+    print("now looking for results")
+    posts = [r_future.result().post for r_future in r_futures]
+    return posts
 
 
 

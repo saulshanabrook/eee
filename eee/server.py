@@ -8,11 +8,6 @@ from . import edx_edge
 
 
 app = flask.Flask(__name__)
-app.debug = True
-
-cors = CORS(app)
-flask_sslify.SSLify(app, permanent=True)
-
 
 @app.route("/", methods=["POST"])
 def data():
