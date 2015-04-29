@@ -3,6 +3,8 @@
 Provides an user friendly export tool from edge.edx.com discussion boards,
 that allows a user to get a  page showcasing their contributions.
 
+Used by [eee-display](https://github.com/saulshanabrook/eee-display), to get discussion board posts.
+
 ## Goals
 * Allow user curation of their material (selecting and ordering posts)
 * Include a mechanism for some users's posts to be anonymized or deleted
